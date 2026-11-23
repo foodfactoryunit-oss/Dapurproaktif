@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Dapur Proaktif - Simulasi Asisten Chef</title>
+<style>
+:root{--ink:#5b3a29;--cream:#fff4dc;--red:#ff6b4a;--yellow:#ffd23f;--mint:#5ed0a0;--sky:#6cc5ff;--pink:#ff9ec4;--orange:#ff9f43}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;color:var(--ink);background-color:#fff4dc;
+background-image:linear-gradient(90deg,rgba(255,107,74,.16) 50%,transparent 50%),linear-gradient(rgba(255,107,74,.16) 50%,transparent 50%);background-size:48px 48px;overflow:hidden}
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh}
+#top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;background:var(--red);border-bottom:5px solid var(--ink);color:#fff;flex:0 0 auto;flex-wrap:wrap}
+.logo{font-weight:900;font-size:18px;text-shadow:2px 2px 0 var(--ink);display:flex;align-items:center;gap:6px}
+.aud{display:flex;gap:6px;flex-wrap:wrap}
+.abtn{border:3px solid var(--ink);background:#fff;color:var(--ink);border-radius:999px;padding:5px 10px;font:inherit;font-weight:800;font-size:13px;cursor:pointer;box-shadow:0 3px 0 var(--ink)}
+.abtn:active{transform:translateY(3px);box-shadow:none}
+.abtn.off{background:#d9d9d9;color:#777}
+#screen{flex:1;overflow-y:auto;overflow-x:hidden;padding:14px 12px 52px;scroll-behavior:smooth}
+#foot{position:fixed;left:0;right:0;bottom:0;height:34px;background:var(--ink);color:var(--cream);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;letter-spacing:.2px;z-index:200;padding:0 8px;text-align:center}
+.wrap{max-width:900px;margin:0 auto}
+.btn{font:inherit;font-weight:900;font-size:17px;color:var(--ink);background:var(--yellow);border:4px solid var(--ink);border-radius:999px;padding:12px 24px;box-shadow:0 6px 0 var(--ink);cursor:pointer;transition:transform .08s}
+.btn:hover{filter:brightness(1.06)}
+.btn:active{transform:translateY(5px);box-shadow:0 1px 0 var(--ink)}
+.btn:disabled{filter:grayscale(1) opacity(.6);cursor:not-allowed;transform:none;box-shadow:0 6px 0 var(--ink)}
+.btn.sm{font-size:13px;padding:8px 12px;box-shadow:0 4px 0 var(--ink)}
+.btn.green{background:var(--mint)}.btn.red{background:var(--red);color:#fff}
+.card{background:#fff;border:4px solid var(--ink);border-radius:24px;box-shadow:0 7px 0 var(--ink);overflow:hidden}
+.card .body{padding:16px}
+.ribbon{padding:10px 16px;font-weight:900;font-size:17px;border-bottom:4px solid var(--ink);background:var(--yellow)}
+.ribbon.r2{background:var(--mint)}.ribbon.g{background:var(--mint)}.ribbon.y{background:var(--yellow)}.ribbon.r{background:var(--red);color:#fff}.ribbon.b{background:var(--sky)}
+h1,h2,h3,h4{margin:0 0 8px}
+p{margin:6px 0;line-height:1.45}
+/* login */
+.hero{text-align:center}
+.hero .mascot{width:190px;height:210px;margin:0 auto;animation:bounce 1.1s ease-in-out infinite}
+.title{font-size:clamp(30px,7vw,52px);font-weight:900;color:var(--red);text-shadow:3px 3px 0 var(--ink),-1px -1px 0 var(--ink),1px -1px 0 var(--ink),-1px 1px 0 var(--ink);margin:4px 0}
+.sub{font-weight:700;max-width:520px;margin:4px auto 14px}
+.form{max-width:440px;margin:0 auto;text-align:left}
+.form label{display:block;font-weight:900;margin:10px 0 4px}
+.form input{width:100%;font:inherit;font-weight:700;padding:12px 14px;border:4px solid var(--ink);border-radius:16px;background:#fffdf5;color:var(--ink);outline:none}
+.form input:focus{background:#fff6bf}
+.form .btn{width:100%;margin-top:16px}
+.small{font-size:13px;opacity:.85}
+/* intro */
+.speakrow{display:flex;gap:12px;align-items:flex-start}
+.speakrow .av{flex:0 0 auto;width:92px}
+.tail{position:relative;background:#fff;border:4px solid var(--ink);border-radius:20px;padding:12px 14px;font-weight:700}
+.jobs{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:16px 0}
+.job{background:#fff;border:4px solid var(--ink);border-radius:22px;padding:14px;box-shadow:0 6px 0 var(--ink);position:relative;animation:popIn .5s both}
+.job:nth-child(1){transform:rotate(-1.5deg);background:#fff1b8}.job:nth-child(2){transform:rotate(1deg);background:#d6f5e6}.job:nth-child(3){transform:rotate(-1deg);background:#d9eeff}
+.job .n{position:absolute;top:-16px;left:-10px;width:38px;height:38px;border-radius:50%;background:var(--red);color:#fff;border:4px solid var(--ink);display:grid;place-items:center;font-weight:900}
+.job .ic{font-size:34px}
+.how{background:#fff;border:4px dashed var(--ink);border-radius:18px;padding:10px 14px;font-weight:700;margin:10px 0}
+/* play */
+.hud{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.badge{border:3px solid var(--ink);border-radius:999px;background:#fff;padding:5px 12px;font-weight:900;font-size:13px;box-shadow:0 3px 0 var(--ink)}
+.badge.ph{background:var(--yellow)}.badge.ph.open{background:var(--orange);color:#fff}
+.obj{background:#fff;border:4px solid var(--ink);border-radius:16px;padding:8px 12px;font-weight:800;font-size:14px;margin-bottom:10px;display:flex;gap:8px;align-items:center}
+.obj .dot{width:12px;height:12px;border-radius:50%;background:var(--red);animation:pulse 1s infinite;flex:0 0 auto}
+.stage{position:relative;border:5px solid var(--ink);border-radius:28px;overflow:hidden;height:clamp(280px,50vh,460px);background:#fff;box-shadow:0 8px 0 var(--ink)}
+.scene{position:absolute;inset:0}
+.scene svg{width:100%;height:100%;display:block}
+.scene.walking{animation:walkSwap .75s ease-in-out}
+.hands{position:absolute;left:50%;bottom:-26px;transform:translateX(-50%);width:min(520px,100%);pointer-events:none}
+.stage.walkmode .hands{animation:handsBob .22s ease-in-out 4}
+.hands.reach{animation:reach .45s ease-out}
+.spotname{position:absolute;top:10px;left:10px;background:var(--red);color:#fff;font-weight:900;font-size:13px;padding:5px 12px;border:3px solid var(--ink);border-radius:999px;box-shadow:0 3px 0 var(--ink)}
+.bubble{position:absolute;top:10px;right:10px;max-width:min(62%,360px);background:#fff;border:4px solid var(--ink);border-radius:18px;padding:8px 12px;font-weight:800;font-size:14px;animation:popIn .35s both;z-index:3}
+.bubble b{color:var(--red)}
+.hot{position:absolute;left:50%;bottom:62px;transform:translateX(-50%);z-index:4;font:inherit;font-weight:900;font-size:16px;color:var(--ink);background:var(--yellow);border:4px solid var(--ink);border-radius:999px;padding:11px 20px;box-shadow:0 6px 0 var(--ink);cursor:pointer;animation:hotPulse 1s ease-in-out infinite;white-space:nowrap}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:14px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.chip{font:inherit;font-weight:800;font-size:12px;background:#fff;color:var(--ink);border:3px solid var(--ink);border-radius:14px;padding:6px 8px;cursor:pointer;box-shadow:0 3px 0 var(--ink)}
+.chip.here{background:var(--sky)}
+.chip.glow,.btn.glow{animation:hotPulse 1s infinite}
+#dlg .card{margin-top:14px}
+.opts{margin-top:8px}
+.opt{display:flex;gap:10px;align-items:center;width:100%;text-align:left;margin:8px 0;padding:12px 14px;font:inherit;font-weight:800;font-size:15px;background:#fff;color:var(--ink);border:3px solid var(--ink);border-radius:16px;box-shadow:0 4px 0 var(--ink);cursor:pointer}
+.opt:hover{background:#fff3b0}.opt:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.opt .l{flex:0 0 auto;width:28px;height:28px;border-radius:50%;background:var(--sky);border:3px solid var(--ink);display:grid;place-items:center;font-size:13px}
+/* modal */
+#modal{position:fixed;left:0;right:0;top:0;bottom:34px;background:rgba(91,58,41,.62);display:none;padding:12px;z-index:150;overflow:auto}
+#modal.on{display:flex}
+#modal>.pop{margin:auto}
+.pop{max-width:560px;width:100%;animation:popIn .45s cubic-bezier(.3,1.6,.5,1)}
+.pop.wide{max-width:880px}
+.situ{background:#fff8dd;border:3px dashed var(--ink);border-radius:16px;padding:10px 12px;font-weight:700;display:flex;gap:10px;align-items:flex-start}
+.situ .em{font-size:30px}
+.big{font-size:46px;text-align:center;margin:4px 0}
+.center{text-align:center}
+/* paper zoom */
+.zoomwrap{perspective:900px}
+.paper{position:relative;background:#fffef6;border:4px solid var(--ink);border-radius:8px;padding:20px 18px 16px;margin:14px auto;max-width:420px;box-shadow:0 8px 0 rgba(91,58,41,.35);transform:rotate(-1.5deg);animation:zoomIn .6s cubic-bezier(.2,1.3,.4,1);background-image:repeating-linear-gradient(transparent 0 29px,#d7ecff 29px 31px)}
+.paper .tape{position:absolute;top:-14px;left:50%;width:90px;height:26px;margin-left:-45px;background:rgba(255,210,63,.85);border:3px solid var(--ink);transform:rotate(3deg)}
+.paper h3{font-size:22px;margin:4px 0}
+.paper .ln{font-weight:800;font-size:17px;margin:8px 0}
+.paper .ln.hand{font-family:"Comic Sans MS","Segoe Print",cursive}
+.paper .note{margin-top:12px;border:3px dashed var(--red);border-radius:12px;padding:8px 10px;font-weight:900;cursor:pointer;background:#fff;position:relative;font-family:"Comic Sans MS","Segoe Print",cursive}
+.paper .note.marked{background:linear-gradient(transparent 20%,#fff176 20%);border-style:solid;animation:wiggleX .4s}
+.hint{font-size:13px;font-weight:700;text-align:center;opacity:.85}
+/* mix */
+.mixgrid{display:grid;grid-template-columns:1fr 1.3fr;gap:14px}
+@media(max-width:700px){.mixgrid{grid-template-columns:1fr}.speakrow .av{width:70px}}
+.recipe{background:#fff8dd;border:3px solid var(--ink);border-radius:16px;padding:10px 12px;font-weight:700;font-size:14px;transform:rotate(-.8deg)}
+.recipe ol{margin:6px 0;padding-left:20px}.recipe li{margin:4px 0}
+.cat{margin-top:8px;background:#ffe1dc;border:3px dashed var(--red);border-radius:12px;padding:6px 8px;font-weight:900}
+.ing{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.ingc{font:inherit;font-weight:800;font-size:13px;color:var(--ink);background:#fff;border:3px solid var(--ink);border-radius:16px;padding:8px 6px;box-shadow:0 4px 0 var(--ink);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.ingc .e{font-size:28px}
+.ingc.sel{background:var(--sky);transform:translateY(3px) rotate(-2deg);box-shadow:0 1px 0 var(--ink)}
+.foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;flex-wrap:wrap}
+.res{display:grid;gap:8px;margin:10px 0}
+.rg{border:3px solid var(--ink);border-radius:14px;padding:8px 10px;font-weight:700;font-size:14px}
+.rg.ok{background:#d6f5e6}.rg.no{background:#ffe1dc}.rg.miss{background:#fff1b8}
+.rg b{display:block;margin-bottom:2px}
+.chefline{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+.chefline svg{flex:0 0 auto}
+/* recap */
+.stat{margin:10px 0}.stat .row{display:flex;justify-content:space-between;font-weight:900;gap:8px}
+.bar{height:20px;border:3px solid var(--ink);border-radius:999px;background:#fff;overflow:hidden;margin-top:4px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--mint),var(--yellow));width:0;transition:width 1.2s cubic-bezier(.2,1,.3,1)}
+.idrow{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.idrow span{background:#fff8dd;border:3px solid var(--ink);border-radius:12px;padding:6px 10px;font-weight:800}
+.fw{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0}
+.fw .card .body{padding:12px 14px;font-size:14px;font-weight:600}
+.ooda{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-top:8px}
+.ooda div{border:3px solid var(--ink);border-radius:14px;padding:8px;font-size:13px;font-weight:700}
+.ooda div:nth-child(1){background:#d9eeff}.ooda div:nth-child(2){background:#fff1b8}.ooda div:nth-child(3){background:#ffe1dc}.ooda div:nth-child(4){background:#d6f5e6}
+.closing{background:linear-gradient(135deg,#fff1b8,#ffd9e5);border:4px solid var(--ink);border-radius:24px;padding:16px;box-shadow:0 7px 0 var(--ink);margin:14px 0;font-weight:700}
+/* fx */
+#fx{position:fixed;inset:0;pointer-events:none;z-index:300;overflow:hidden}
+.fxi{position:absolute;font-size:34px;animation:fxUp 1.3s ease-out forwards}
+.shake{animation:shake .45s}
+/* svg anims */
+.o{stroke:#5b3a29;stroke-width:4;stroke-linejoin:round;stroke-linecap:round}
+.blink{animation:blink 4s infinite;transform-box:fill-box;transform-origin:center}
+.bn{animation:bounce 1.2s ease-in-out infinite;transform-box:fill-box;transform-origin:center bottom}
+.bn.d2{animation-delay:.3s}.bn.d3{animation-delay:.6s}
+.wg{animation:wiggle 1.4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.sw{animation:swing 2.4s ease-in-out infinite;transform-box:fill-box;transform-origin:top center}
+.sw.d2{animation-delay:.5s}.sw.d3{animation-delay:1s}
+.fl{animation:flame .3s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:center bottom}
+.toss{animation:toss .6s ease-in-out 3;transform-box:fill-box;transform-origin:center}
+.fly{animation:fly .6s ease-out 3;opacity:0}
+.spk{animation:twinkle 1s ease-in-out infinite}.spk.d2{animation-delay:.4s}
+.qm{animation:bounce .9s ease-in-out infinite}
+.drop{animation:dropAnim 1.1s ease-in infinite}
+.dots{animation:bounce .8s ease-in-out infinite}
+.cb{animation:custBob 2.2s ease-in-out infinite;transform-box:fill-box;transform-origin:center bottom}
+.wave{animation:wave 1.1s ease-in-out infinite;transform-box:fill-box;transform-origin:bottom center}
+.steam{animation:steam 2s ease-in infinite}
+@keyframes bounce{0%,100%{transform:translateY(0) scale(1,1)}50%{transform:translateY(-8px) scale(1.04,.96)}}
+@keyframes wiggle{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+@keyframes wiggleX{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes swing{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+@keyframes flame{from{transform:scale(.9,.85)}to{transform:scale(1.1,1.15)}}
+@keyframes toss{0%,100%{transform:translateY(0) rotate(0)}30%{transform:translateY(-26px) rotate(-8deg)}60%{transform:translateY(-4px) rotate(5deg)}}
+@keyframes fly{0%{transform:translateY(0);opacity:1}100%{transform:translateY(-90px) translateX(var(--dx,10px));opacity:0}}
+@keyframes twinkle{0%,100%{transform:scale(.7);opacity:.5}50%{transform:scale(1.2);opacity:1}}
+@keyframes dropAnim{0%{transform:translateY(0);opacity:1}100%{transform:translateY(26px);opacity:0}}
+@keyframes custBob{0%,100%{transform:translateY(0) rotate(-.8deg)}50%{transform:translateY(-6px) rotate(.8deg)}}
+@keyframes wave{0%,100%{transform:rotate(-12deg)}50%{transform:rotate(14deg)}}
+@keyframes steam{0%{transform:translateY(0);opacity:.8}100%{transform:translateY(-40px);opacity:0}}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+@keyframes popIn{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.06);opacity:1}100%{transform:scale(1)}}
+@keyframes zoomIn{0%{transform:scale(.2) rotate(-12deg);opacity:0}100%{transform:scale(1) rotate(-1.5deg);opacity:1}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.5)}}
+@keyframes hotPulse{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.08)}}
+.chip.glow,.btn.sm.glow{animation:hotPulse2 1s infinite}
+@keyframes hotPulse2{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+@keyframes walkSwap{0%{transform:translateX(0) scale(1)}45%,55%{transform:translateX(calc(var(--dir,1)*-7%)) scale(1.2);opacity:.15}100%{transform:translateX(0) scale(1);opacity:1}}
+@keyframes handsBob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-14px)}}
+@keyframes reach{0%{transform:translateX(-50%) translateY(0)}40%{transform:translateX(-50%) translateY(-46px) scale(1.06)}100%{transform:translateX(-50%) translateY(0)}}
+@keyframes fxUp{0%{transform:translate(0,0) scale(.4) rotate(0);opacity:0}15%{opacity:1}100%{transform:translate(var(--dx),-180px) scale(1.3) rotate(var(--rot));opacity:0}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}40%{transform:translateX(9px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+@media(max-width:560px){.logo{font-size:15px}.hot{font-size:14px;padding:9px 14px}.chip .t{display:none}.btn{font-size:15px}.bubble{font-size:12.5px;max-width:70%}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header id="top">
+    <div class="logo">🍳 Dapur Proaktif</div>
+    <div class="aud">
+      <button class="abtn" id="bMusic" type="button" aria-label="Musik latar">🎵 Musik: ON</button>
+      <button class="abtn" id="bSfx" type="button" aria-label="Efek suara">🔊 Efek Suara: ON</button>
+    </div>
+  </header>
+  <main id="screen"></main>
+</div>
+<div id="modal"></div>
+<div id="fx"></div>
+<footer id="foot">Education &amp; Training Department - Food Beverage Industry (2026)</footer>
+
+<script>
+(function(){
+'use strict';
+var $=function(s){return document.querySelector(s)};
+var shuffle=function(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a};
+var esc=function(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+
+/* ================= AUDIO (Web Audio API, tanpa file eksternal) ================= */
+var EIGHTH=60/132/2;
+var AU={ctx:null,music:true,sfx:true,timer:null,step:0,next:0,
+ init:function(){
+  if(this.ctx){if(this.ctx.state==='suspended')this.ctx.resume();return}
+  var C=window.AudioContext||window.webkitAudioContext;if(!C)return;
+  var c=this.ctx=new C();
+  this.master=c.createGain();this.master.gain.value=.9;this.master.connect(c.destination);
+  this.bgmG=c.createGain();this.bgmG.gain.value=this.music?.22:0;this.bgmG.connect(this.master);
+  this.sfxG=c.createGain();this.sfxG.gain.value=this.sfx?.7:0;this.sfxG.connect(this.master);
+  var b=c.createBuffer(1,c.sampleRate,c.sampleRate),d=b.getChannelData(0);
+  for(var i=0;i<d.length;i++)d[i]=Math.random()*2-1;this.nb=b;
+  if(this.music)this.startBgm();
+ },
+ _tone:function(f,d,type,v,t,dest,slide){
+  var c=this.ctx,o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(f,t);
+  if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(20,slide),t+d);
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(Math.max(.0002,v),t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+  o.connect(g);g.connect(dest);o.start(t);o.stop(t+d+.05)},
+ _noise:function(d,v,fq,t,dest,type){
+  var c=this.ctx,s=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();s.buffer=this.nb;f.type=type||'highpass';f.frequency.value=fq;
+  g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);s.connect(f);f.connect(g);g.connect(dest);s.start(t);s.stop(t+d+.02)},
+ tone:function(f,d,type,v,delay,slide){if(!this.ctx||!this.sfx)return;this._tone(f,d,type,v,this.ctx.currentTime+(delay||0),this.sfxG,slide)},
+ noise:function(d,v,fq,delay,type){if(!this.ctx||!this.sfx)return;this._noise(d,v,fq,this.ctx.currentTime+(delay||0),this.sfxG,type)},
+ startBgm:function(){if(!this.ctx||this.timer)return;var s=this;this.next=this.ctx.currentTime+.1;this.timer=setInterval(function(){s.sched()},60)},
+ stopBgm:function(){clearInterval(this.timer);this.timer=null},
+ sched:function(){while(this.next<this.ctx.currentTime+.25){this.play(this.step,this.next);this.next+=EIGHTH;this.step=(this.step+1)%32}},
+ play:function(s,t){
+  var bar=Math.floor(s/8)%4,pos=s%8,f=function(n){return 261.63*Math.pow(2,n/12)},g=this.bgmG;
+  var ROOT=[-12,-15,-19,-17],BP=[0,null,12,null,0,null,7,null];
+  var MEL=[[16,null,12,16,19,null,16,12],[9,null,12,16,21,null,16,12],[17,null,12,17,21,null,17,12],[19,null,14,19,23,null,19,14]];
+  var CH=[[0,4,7],[-3,0,4],[-7,-3,0],[-5,-1,2]];
+  if(BP[pos]!==null)this._tone(f(ROOT[bar]+BP[pos]),.2,'triangle',.5,t,g);
+  var m=MEL[bar][pos];if(m!==null)this._tone(f(m),.2,'triangle',.26,t,g);
+  if(pos===2||pos===6){for(var i=0;i<3;i++)this._tone(f(CH[bar][i]),.12,'square',.05,t,g)}
+  if(pos===0||pos===4)this._tone(130,.14,'sine',.7,t,g,45);
+  if(pos%2===1)this._noise(.04,.14,7000,t,g,'highpass');
+  if(pos===2||pos===6)this._noise(.09,.1,2200,t,g,'bandpass')},
+ setMusic:function(on){this.music=on;if(!this.ctx)return;this.bgmG.gain.setTargetAtTime(on?.22:0,this.ctx.currentTime,.05);if(on)this.startBgm();else this.stopBgm()},
+ setSfx:function(on){this.sfx=on;if(!this.ctx)return;this.sfxG.gain.setTargetAtTime(on?.7:0,this.ctx.currentTime,.03)}
+};
+var SFX={
+ click:function(){AU.tone(660,.08,'square',.22,0,900)},
+ step:function(){AU.noise(.07,.4,420,0,'lowpass');AU.tone(110,.09,'sine',.45,0,70)},
+ pop:function(){AU.tone(520,.12,'triangle',.35,0,780);AU.tone(780,.15,'triangle',.3,.08,1040)},
+ paper:function(){AU.noise(.18,.3,2500,0,'bandpass');AU.noise(.12,.25,3600,.13,'bandpass')},
+ pick:function(){AU.tone(880,.07,'sine',.35,0,1250)},
+ unpick:function(){AU.tone(520,.07,'sine',.3,0,300)},
+ good:function(){[523,659,784,1047].forEach(function(f,i){AU.tone(f,.2,'triangle',.35,i*.08)})},
+ meh:function(){AU.tone(392,.15,'triangle',.3,0);AU.tone(330,.24,'triangle',.3,.13)},
+ bad:function(){AU.tone(300,.32,'sawtooth',.2,0,150);AU.tone(220,.38,'sawtooth',.18,.22,110)},
+ bell:function(){[1318,1568,1318,1568].forEach(function(f,i){AU.tone(f,.5,'sine',.35,i*.22)})},
+ sizzle:function(){AU.noise(.9,.3,5200,0,'highpass')},
+ fanfare:function(){[523,523,659,784,659,784,1047].forEach(function(f,i){AU.tone(f,.25,'triangle',.35,i*.13)})}
+};
+function syncAud(){
+ $('#bMusic').textContent=AU.music?'🎵 Musik: ON':'🔇 Musik: OFF';$('#bMusic').classList.toggle('off',!AU.music);
+ $('#bSfx').textContent=AU.sfx?'🔊 Efek Suara: ON':'🔇 Efek Suara: OFF';$('#bSfx').classList.toggle('off',!AU.sfx)}
+$('#bMusic').onclick=function(){AU.init();AU.setMusic(!AU.music);syncAud();SFX.click()};
+$('#bSfx').onclick=function(){AU.init();AU.setSfx(!AU.sfx);syncAud();SFX.click()};
+document.addEventListener('visibilitychange',function(){if(!AU.ctx)return;if(document.hidden)AU.ctx.suspend();else AU.ctx.resume()});
+syncAud();
+
+/* ================= KARAKTER (SVG) ================= */
+function face(expr,o){
+ o=o||{};var skin=o.skin||'#ffd9b3',back='',front='',ears='';
+ var cheeks='<ellipse cx="-64" cy="26" rx="16" ry="10" fill="'+(expr==='upset'?'#ff5a5a':'#ff8aa0')+'" opacity=".55"/><ellipse cx="64" cy="26" rx="16" ry="10" fill="'+(expr==='upset'?'#ff5a5a':'#ff8aa0')+'" opacity=".55"/>';
+ if(o.hair==='long'){back='<ellipse cx="0" cy="20" rx="122" ry="128" fill="'+o.hc+'" class="o"/>';front='<path d="M-100,-24 Q-96,-112 0,-112 Q96,-112 100,-24 Q56,-72 0,-62 Q-56,-72 -100,-24Z" fill="'+o.hc+'" class="o"/>'}
+ else if(o.hair==='short'){front='<path d="M-100,-30 Q-108,-122 0,-118 Q108,-122 100,-30 Q74,-80 0,-74 Q-74,-80 -100,-30Z" fill="'+o.hc+'" class="o"/>'}
+ else if(o.hair==='hijab'){back='<path d="M-128,40 Q-132,-130 0,-130 Q132,-130 128,40 Q120,150 0,160 Q-120,150 -128,40Z" fill="'+o.hc+'" class="o"/>';front='<path d="M-102,-20 Q-100,-112 0,-114 Q100,-112 102,-20 Q64,-76 0,-72 Q-64,-76 -102,-20Z" fill="'+o.hc+'" class="o"/>'}
+ else if(o.hat){var sh='<rect x="-76" y="-112" width="152" height="40" rx="14"/><circle cx="-50" cy="-124" r="34"/><circle cx="0" cy="-142" r="40"/><circle cx="50" cy="-124" r="34"/>';
+  front='<g fill="#fff" stroke="#5b3a29" stroke-width="12" stroke-linejoin="round">'+sh+'</g><g fill="#fff">'+sh+'</g><path d="M-76,-74 Q0,-64 76,-74" fill="none" class="o"/>'}
+ if(o.hair!=='hijab')ears='<circle cx="-100" cy="8" r="16" fill="'+skin+'" class="o"/><circle cx="100" cy="8" r="16" fill="'+skin+'" class="o"/>';
+ var ey=function(x,dy){dy=dy||0;return '<g class="blink"><ellipse cx="'+x+'" cy="-8" rx="15" ry="19" fill="#fff" class="o"/><circle cx="'+(x+2)+'" cy="'+(-6+dy)+'" r="9" fill="#3b2418"/><circle cx="'+(x+5)+'" cy="'+(-11+dy)+'" r="3.5" fill="#fff"/></g>'};
+ var f='';
+ if(expr==='happy'){
+  f='<path d="M-54,-4 Q-38,-30 -22,-4" class="o" fill="none" stroke-width="6"/><path d="M22,-4 Q38,-30 54,-4" class="o" fill="none" stroke-width="6"/><path d="M-30,28 Q0,78 30,28 Z" fill="#d9453b" class="o"/><path d="M-14,50 Q0,40 14,50 Q0,64 -14,50Z" fill="#ff9a9a"/>'+cheeks+'<text class="spk" x="-150" y="-50" font-size="34">✨</text><text class="spk d2" x="112" y="-60" font-size="34">⭐</text>'}
+ else if(expr==='confused'){
+  f=ey(-38)+ey(38)+'<path d="M-58,-54 Q-38,-66 -18,-46" class="o" fill="none"/><path d="M20,-42 L58,-52" class="o" fill="none"/><path d="M-24,46 Q-12,34 0,46 T24,46" class="o" fill="none"/>'+cheeks+'<path class="o drop" d="M92,-52 Q108,-20 92,-12 Q76,-20 92,-52Z" fill="#8fd8ff"/><text class="qm" x="-150" y="-50" font-size="42" font-weight="900" fill="#ff6b4a">?</text><text class="qm" x="112" y="-70" font-size="34" font-weight="900" fill="#ff9f43" style="animation-delay:.3s">?</text>'}
+ else if(expr==='upset'){
+  f=ey(-38,3)+ey(38,3)+'<path d="M-60,-56 L-18,-38" class="o" fill="none" stroke-width="6"/><path d="M18,-38 L60,-56" class="o" fill="none" stroke-width="6"/><path d="M-24,52 Q0,30 24,52" class="o" fill="none" stroke-width="5"/>'+cheeks+'<path d="M-118,-70 l-22,-14 M118,-70 l22,-14 M-124,-30 l-26,0 M124,-30 l26,0" class="o" fill="none"/><path class="o drop" d="M92,-52 Q108,-20 92,-12 Q76,-20 92,-52Z" fill="#8fd8ff"/>'}
+ else{
+  f=ey(-38,-3)+ey(38,-3)+'<path d="M-58,-42 Q-38,-56 -18,-44" class="o" fill="none"/><path d="M18,-44 Q38,-56 58,-42" class="o" fill="none"/><path d="M-16,42 Q0,52 16,42" class="o" fill="none"/>'+cheeks+(o.dots?'<text class="dots" x="104" y="-70" font-size="40" font-weight="900" fill="#5b3a29">…</text>':'')}
+ return '<g>'+back+ears+'<ellipse cx="0" cy="0" rx="100" ry="106" fill="'+skin+'" class="o"/><path d="M-4,14 Q0,20 4,14" class="o" fill="none"/>'+f+front+'</g>'}
+function avatar(kind,expr,size){
+ var o=kind==='chef'?{hat:true}:{};var h=Math.round(size*1.1);
+ return '<svg viewBox="-135 -195 270 310" width="'+size+'" height="'+h+'" aria-hidden="true"><g class="bn">'+face(expr,o)+'</g></svg>'}
+var CUST=[
+ {n:'Kak Dinda',skin:'#ffd9b3',hair:'long',hc:'#3b2418',cloth:'#6cc5ff'},
+ {n:'Pak Bayu',skin:'#e8b88a',hair:'short',hc:'#2a1a12',cloth:'#ff9f43'},
+ {n:'Bu Rina',skin:'#f5cba7',hair:'hijab',hc:'#b388ff',cloth:'#5ed0a0'}];
+
+/* ================= DATA SKENARIO ================= */
+var SPOTS=[{n:'Area Persiapan',s:'Persiapan',ic:'🧺'},{n:'Meja Pesanan & Resep',s:'Meja Pesanan',ic:'📝'},{n:'Stasiun Masak bersama Chef',s:'Stasiun Masak',ic:'🍳'},{n:'Konter Depan',s:'Konter',ic:'🙋'}];
+var PRE=[
+ {ic:'🧺',title:'Area Persiapan',sit:'{n}, jam buka tinggal 30 menit. Chef masih ke gudang, dan rak bahan terlihat belum tertata.',opts:[
+  {t:'Hitung stok dan siapkan bumbu dasar',s:2,fb:'Kamu bergerak sebelum diminta: stok jelas, bumbu dasar siap. Inilah mise en place yang bikin Chef tenang.'},
+  {t:'Rapikan meja kerja dulu saja',s:1,fb:'Rapi memang bagus, tapi bahan belum dicek. Kalau ada yang kurang, baru ketahuan saat pesanan sudah datang.'},
+  {t:'Tunggu Chef balik, biasanya langsung kasih tugas',s:0,fb:'Menunggu terasa aman, padahal waktu terbuang. Chef harus mengulang arahan yang sebenarnya bisa kamu antisipasi.'},
+  {t:'Ambil bahan seadanya, yang penting cepat',s:0,fb:'Cepat tapi asal. Bahan yang diambil belum tentu cocok dengan menu hari ini, jadinya bolak-balik lagi.'}]},
+ {ic:'🥣',title:'Stasiun Masak',sit:'Bumbu halus untuk nasi goreng tinggal separuh. Chef sedang sibuk menyalakan kompor.',opts:[
+  {t:'Giling bumbu baru sesuai takaran',s:2,fb:'Kamu lihat bumbu menipis dan langsung menyiapkan tanpa menunggu Chef minta. Itu wilayah yang memang bisa kamu pengaruhi.'},
+  {t:'Kabari Chef kalau bumbunya mau habis',s:1,fb:'Melapor itu baik, tapi Chef tetap harus mengambil keputusan dulu. Kamu sebenarnya bisa langsung menyiapkannya.'},
+  {t:'Tunggu sampai Chef minta bumbu',s:0,fb:'Begitu pesanan ramai, Chef harus berhenti masak untuk minta bumbu. Ritme dapur jadi tersendat.'},
+  {t:'Takar kira-kira saja, nanti dicicip',s:0,fb:'Takaran kira-kira bikin rasa antar porsi tidak konsisten, dan pelanggan bisa merasakan bedanya.'}]},
+ {ic:'📖',title:'Meja Pesanan & Resep',sit:'Di panduan resep ada tanda khusus: beberapa tamu langganan punya alergi tertentu.',opts:[
+  {t:'Baca panduan, tandai bahan rawan alergi',s:2,fb:'Kamu mengamati detail lebih awal, jadi saat pesanan masuk kamu sudah tahu mana yang harus diwaspadai.'},
+  {t:'Lihat sekilas, nanti dibaca lagi',s:1,fb:'Sudah ada niat membaca, tapi sekilas rawan terlewat. Detail alergi sebaiknya dipastikan sebelum sibuk.'},
+  {t:'Ingat-ingat saja, pasti nyambung nanti',s:0,fb:'Mengandalkan ingatan di jam ramai itu berisiko. Catatan ada supaya dibaca, bukan ditebak.'},
+  {t:'Tunggu pesanan masuk, baru dibaca',s:0,fb:'Saat pesanan masuk waktu sudah mepet. Membaca lebih awal membuat kamu satu langkah di depan.'}]}];
+var ORD=[
+ {no:1,dish:'Nasi Goreng Spesial',qty:2,emoji:'🍛',meja:'Meja 5',extra:'Es teh manis x2, kerupuk',note:'Tanpa udang (tamu alergi). Pedas sedang. Telur mata sapi.',
+  chef:'Nomor satu masuk. Nasi goreng, jangan sampai salah bahan ya.',
+  guide:['Haluskan bawang dan cabai, tumis sampai harum','Masukkan lauk, lalu nasi yang sudah dingin','Bumbui manis-gurih, sajikan dengan telur mata sapi'],
+  cols:['#d9a55a','#c0863c','#f4d58d','#e57f4a','#fff7e6','#b96a2e','#e8b86d'],
+  ing:[{e:'🍚',n:'Nasi putih dingin',ok:1},{e:'🧄',n:'Bawang putih',ok:1},{e:'🌶️',n:'Cabai merah',ok:1},{e:'🍗',n:'Ayam suwir',ok:1},{e:'🥚',n:'Telur ayam',ok:1},{e:'🍶',n:'Kecap manis',ok:1},
+   {e:'🦐',n:'Udang kupas',ok:0,why:'Catatan pesanan: tanpa udang karena alergi.'},{e:'🥥',n:'Santan kental',ok:0,why:'Bukan bahan nasi goreng.'},{e:'🍝',n:'Bihun kering',ok:0,why:'Itu untuk menu lain, bukan pesanan ini.'},{e:'🥔',n:'Kentang potong',ok:0,why:'Tidak ada di panduan resep.'}]},
+ {no:2,dish:'Capcay Kuah',qty:1,emoji:'🥘',meja:'Meja 2',extra:'Teh tawar hangat x1',note:'Tanpa hati ayam. Sayur jangan terlalu matang.',
+  chef:'Nomor dua capcay. Sayurnya harus tetap renyah, ingat catatannya.',
+  guide:['Tumis bawang sampai wangi','Sayur keras dulu, baru yang lunak','Tuang kuah, kentalkan sedikit, angkat selagi renyah'],
+  cols:['#ff9f43','#5ed0a0','#fff','#c8a37a','#6fcf97','#ffd23f','#f4f4f4'],
+  ing:[{e:'🥕',n:'Wortel',ok:1},{e:'🥦',n:'Brokoli',ok:1},{e:'🥬',n:'Sawi putih',ok:1},{e:'🍄',n:'Jamur kancing',ok:1},{e:'🧄',n:'Bawang putih',ok:1},{e:'🌽',n:'Larutan maizena',ok:1},
+   {e:'🍖',n:'Hati ayam',ok:0,why:'Catatan pesanan: tanpa hati ayam.'},{e:'🍚',n:'Nasi putih',ok:0,why:'Bukan bahan capcay.'},{e:'🥥',n:'Santan',ok:0,why:'Bukan bahan capcay.'},{e:'🍜',n:'Mi kuning',ok:0,why:'Itu untuk menu lain.'}]},
+ {no:3,dish:'Kwetiau Goreng Sayur',qty:1,emoji:'🍜',meja:'Meja 8',extra:'Air mineral x1',note:'Tanpa telur (tamu alergi). Tambah sawi.',
+  chef:'Nomor tiga kwetiau. Ada alergi telur, jadi teliti sekali ya.',
+  guide:['Tumis bawang, masukkan sayuran','Tambahkan kwetiau, bumbui dengan kecap','Aduk cepat di api besar'],
+  cols:['#f2e0b8','#e6cf9c','#6fcf97','#c0863c','#fff7e6','#f2e0b8','#8bd17c'],
+  ing:[{e:'🍜',n:'Kwetiau basah',ok:1},{e:'🥬',n:'Sawi hijau',ok:1},{e:'🌱',n:'Tauge',ok:1},{e:'🧄',n:'Bawang putih',ok:1},{e:'🍶',n:'Kecap manis',ok:1},
+   {e:'🥚',n:'Telur ayam',ok:0,why:'Catatan pesanan: tanpa telur karena alergi.'},{e:'🍖',n:'Bakso sapi',ok:0,why:'Resep ini sayur saja.'},{e:'🍚',n:'Nasi putih',ok:0,why:'Bukan bahan kwetiau.'},{e:'🥜',n:'Kacang tanah giling',ok:0,why:'Tidak ada di panduan resep.'}]}];
+var CQ=[
+ {say:'Kak {n}, pesanan saya udah sampai mana ya? Kok belum keluar?',opts:[
+  {t:'Lagi ditumis, sekitar 5 menit. Tanpa udang, ya?',s:2,rep:'Oh gitu, oke. Iya, tanpa udang ya. Makasih!',fb:'Kamu kasih kabar konkret dan sekalian memastikan catatan alergi. Pelanggan tenang, Chef pun terbantu.'},
+  {t:'Saya tanya Chef dulu ya, Kak',s:1,rep:'Hmm, oke deh. Ditunggu ya...',fb:'Sopan, tapi kamu menunggu Chef untuk info yang sebenarnya bisa kamu pantau sendiri dari alur dapur.'},
+  {t:'Sebentar lagi jadi kok, Kak',s:0,rep:'Sebentar itu berapa lama sih?',fb:'Jawabannya terdengar ramah tapi kosong. Tidak ada kepastian waktu, jadi pelanggan tetap resah.'},
+  {t:'Ramai banget hari ini, ya, Kak',s:0,rep:'Iya sih, tapi pesanan saya gimana?',fb:'Menjelaskan keadaan bukan menjawab pertanyaan. Pelanggan butuh kepastian, bukan alasan.'}]},
+ {say:'Kak {n}, capcaynya sayurnya jangan lembek ya, bisa?',opts:[
+  {t:'Bisa, Kak. Sudah dicatat, sayur diangkat cepat',s:2,rep:'Wah, siap! Makasih sudah dicatat ya.',fb:'Kamu menegaskan catatan dan menghubungkannya ke alur Chef. Pelanggan merasa didengar.'},
+  {t:'Bisa, nanti saya sampaikan ke Chef',s:1,rep:'Oke... semoga beneran disampaikan ya.',fb:'Jawabannya benar, tapi masih menggantung. Catatan itu sebaiknya langsung kamu pastikan di tempat.'},
+  {t:'Biasanya sih memang agak lembek, Kak',s:0,rep:'Lho, kok gitu? Saya kurang suka dong...',fb:'Kamu membenarkan kebiasaan, bukan melayani permintaan. Pelanggan jadi ragu dengan hasilnya.'},
+  {t:'Iya iya, diusahakan ya, Kak',s:0,rep:'Diusahakan? Kok nggak yakin ya...',fb:'Kata diusahakan terdengar tidak pasti. Tanpa tindakan jelas, pelanggan sulit percaya.'}]},
+ {say:'Kak {n}, kwetiaunya nggak pakai telur, kan? Saya alergi.',opts:[
+  {t:'Tidak pakai telur, sudah saya cek kertasnya',s:2,rep:'Alhamdulillah, makasih ya sudah dicek dulu.',fb:'Kamu membaca ulang catatan di kertas pesanan sebelum menjawab. Itulah ketelitian yang melindungi pelanggan.'},
+  {t:'Seingat saya tidak pakai, Kak',s:1,rep:'Seingat... bisa dipastikan nggak ya?',fb:'Kamu hampir benar, tapi mengandalkan ingatan di soal alergi terlalu berisiko. Cek langsung lebih aman.'},
+  {t:'Kayaknya aman kok, Kak, tenang aja',s:0,rep:'Kayaknya? Saya jadi khawatir nih.',fb:'Kata kayaknya untuk urusan alergi bisa berbahaya. Ketenangan palsu bukan pelayanan.'},
+  {t:'Nanti kalau ada telur saya angkat',s:0,rep:'Lho, jadi belum dicek? Waduh.',fb:'Mengurus masalah setelah terjadi itu terlambat. Pengecekan seharusnya dilakukan sebelum dimasak.'}]}];
+
+/* ================= STATE ================= */
+var P={name:'',nik:''};var S={};
+function fn(){return P.name.trim().split(/\s+/)[0]}
+function buildSteps(){var s=[{t:'pre',i:0,spot:0},{t:'pre',i:1,spot:2},{t:'pre',i:2,spot:1}];for(var o=0;o<3;o++){s.push({t:'paper',o:o,spot:1},{t:'mix',o:o,spot:2},{t:'serve',o:o,spot:3})}return s}
+function resetState(){S={spot:0,idx:0,phase:'pre',cur:0,opened:false,flags:{},pre:[],mat:[],cs:[],chefExpr:'normal',custExpr:'wait',dish:null,served:false,wokToss:false,busy:false,walking:false,steps:buildSteps()}}
+resetState();
+
+/* ================= SCENE SVG ================= */
+function head(){return '<svg viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="chk" width="50" height="50" patternUnits="userSpaceOnUse"><rect width="50" height="50" fill="#fff4dc"/><rect width="25" height="25" fill="#ffd9a0"/><rect x="25" y="25" width="25" height="25" fill="#ffd9a0"/></pattern></defs>'}
+function sign(t,x,w,c){return '<g transform="translate('+x+' 14)"><rect width="'+w+'" height="40" rx="14" fill="'+c+'" class="o"/><text x="'+(w/2)+'" y="27" text-anchor="middle" font-weight="900" font-size="17" fill="#fff">'+t+'</text></g>'}
+function stamp(show,x,y){return show?'<g transform="translate('+x+' '+y+')"><g class="bn"><circle r="26" fill="#5ed0a0" class="o"/><text y="10" text-anchor="middle" font-size="30">✔</text></g></g>':''}
+function scene0(){
+ var jars='';var jc=['#ff8a65','#ffd54f','#81c784','#64b5f6','#ba68c8','#f06292'];
+ for(var i=0;i<6;i++){var x=150+i*85;jars+='<g class="bn d'+(i%3+1)+'"><rect x="'+x+'" y="132" width="58" height="52" rx="10" fill="'+jc[i]+'" class="o"/><rect x="'+(x+6)+'" y="122" width="46" height="14" rx="5" fill="#fff" class="o"/><rect x="'+(x+12)+'" y="148" width="34" height="18" rx="4" fill="#fff"/></g>'}
+ var stripes='';for(var k=0;k<9;k++)stripes+='<rect x="'+(k*100)+'" y="0" width="50" height="330" fill="#fff"/>';
+ var eggs='';for(var e=0;e<4;e++)eggs+='<ellipse cx="'+(138+e*32)+'" cy="272" rx="14" ry="18" fill="#fff7e6" class="o"/>';
+ return head()+'<rect width="800" height="500" fill="#ffe08a"/><g opacity=".35">'+stripes+'</g><rect y="330" width="800" height="170" fill="url(#chk)"/>'+sign('AREA PERSIAPAN',300,200,'#ff6b4a')+
+ '<g transform="translate(86 70)"><g class="sw"><line x1="0" y1="-60" x2="0" y2="0" class="o"/><circle r="34" fill="#90a4ae" class="o"/><circle r="22" fill="#cfd8dc"/></g></g><g transform="translate(714 70)"><g class="sw d2"><line x1="0" y1="-60" x2="0" y2="0" class="o"/><circle r="34" fill="#ffab91" class="o"/><circle r="22" fill="#ffccbc"/></g></g>'+
+ '<rect x="110" y="184" width="580" height="14" rx="6" fill="#c97b3d" class="o"/>'+jars+
+ '<rect x="50" y="300" width="700" height="170" rx="18" fill="#ffb26b" class="o"/><rect x="50" y="300" width="700" height="28" rx="14" fill="#ffd199" class="o"/>'+
+ '<rect x="100" y="262" width="150" height="50" rx="10" fill="#d9a066" class="o"/>'+eggs+
+ '<rect x="290" y="285" width="230" height="30" rx="12" fill="#e8c48a" class="o"/><g class="bn"><circle cx="335" cy="266" r="22" fill="#f6c1e0" class="o"/><path d="M335,244 q4,-12 10,-14" class="o" fill="none"/></g><g class="bn d2"><circle cx="385" cy="270" r="18" fill="#f6c1e0" class="o"/></g><g class="bn d3"><path d="M430,278 q40,-30 62,-4 q-22,16 -62,4Z" fill="#e53935" class="o"/><path d="M492,274 l12,-6" class="o"/></g>'+
+ '<rect x="580" y="284" width="110" height="28" rx="10" fill="#90caf9" class="o"/><circle cx="635" cy="262" r="34" fill="#fff" class="o"/><g transform="translate(635 262)"><g class="wg"><line x1="0" y1="0" x2="0" y2="-24" class="o"/></g></g>'+
+ '<text x="400" y="400" text-anchor="middle" font-size="22" font-weight="900" fill="#5b3a29" opacity=".6">Mise en place dulu, baru buka!</text>'+stamp(S.flags.pre0,700,236)+'</svg>'}
+function scene1(){
+ var slips='';for(var i=0;i<6;i++){slips+='<g transform="translate('+(160+i*90)+' 80)"><g class="sw '+(i%2?'d2':'')+'"><line x1="30" y1="0" x2="30" y2="12" class="o"/><rect y="12" width="60" height="88" rx="6" fill="#fff" class="o"/><rect y="12" width="60" height="18" fill="'+['#ff8a65','#ffd54f','#81c784','#64b5f6','#f06292','#ba68c8'][i]+'" class="o"/><path d="M10,46 h40 M10,60 h32 M10,74 h38" class="o" stroke-width="3"/></g></g>'}
+ var ord=S.phase==='open'?ORD[S.cur]:null;
+ return head()+'<rect width="800" height="500" fill="#cfe8ff"/><g fill="#fff" opacity=".6"><circle cx="60" cy="140" r="10"/><circle cx="720" cy="190" r="12"/><circle cx="640" cy="60" r="8"/><circle cx="130" cy="60" r="9"/></g>'+sign('MEJA PESANAN &amp; RESEP',270,260,'#4aa3e8')+
+ '<rect x="120" y="76" width="580" height="10" rx="5" fill="#8d6e63" class="o"/>'+slips+
+ '<rect x="40" y="310" width="720" height="170" rx="18" fill="#d99a5b" class="o"/><rect x="40" y="310" width="720" height="26" rx="13" fill="#f0b97d" class="o"/>'+
+ '<g transform="translate(180 330)"><path d="M-80,-10 L0,-26 L0,60 L-80,70Z" fill="#fffdf0" class="o"/><path d="M0,-26 L80,-10 L80,70 L0,60Z" fill="#fffdf0" class="o"/><path d="M-62,10 h50 M-62,26 h46 M-62,42 h50 M16,10 h46 M16,26 h50 M16,42 h40" class="o" stroke-width="3"/></g>'+
+ '<g transform="translate(400 250) rotate(-3)"><g class="wg"><rect x="-100" y="-90" width="200" height="180" rx="8" fill="#fffef6" class="o"/><rect x="-40" y="-102" width="80" height="22" fill="#ffd23f" class="o"/><text x="0" y="-52" text-anchor="middle" font-weight="900" font-size="20" fill="#5b3a29">'+(ord?'PESANAN No. '+('0'+ord.no):'BELUM ADA PESANAN')+'</text><path d="M-80,-30 h160 M-80,-4 h130 M-80,22 h150 M-80,48 h100" class="o" stroke-width="3"/>'+(ord?'<text x="0" y="-12" text-anchor="middle" font-size="22" font-weight="900" fill="#e53935">'+ord.emoji+' '+ord.dish.split(' ')[0]+'</text>':'')+'</g></g>'+
+ '<g transform="translate(650 320)"><g class="'+(S.phase==='open'?'wg':'')+'"><path d="M-40,0 Q-40,-50 0,-50 Q40,-50 40,0Z" fill="#ffd23f" class="o"/><ellipse cy="2" rx="52" ry="12" fill="#ffb300" class="o"/><circle cy="-56" r="6" fill="#ffb300" class="o"/></g></g>'+
+ '<g transform="translate(560 410) rotate(-20)"><rect width="90" height="12" rx="6" fill="#e53935" class="o"/></g>'+stamp(S.flags.pre2||S.flags.paper0,740,236)+'</svg>'}
+function scene2(){
+ var o=ORD[Math.min(S.cur,2)];var nodes='';var pos=[[-50,18],[-24,28],[4,32],[30,26],[52,16],[-6,16],[16,8]];
+ for(var i=0;i<7;i++)nodes+='<circle cx="'+pos[i][0]+'" cy="'+pos[i][1]+'" r="11" fill="'+o.cols[i]+'" class="o"/>';
+ var fly='';if(S.wokToss){for(var j=0;j<5;j++)fly+='<circle class="fly" cx="'+(-40+j*22)+'" cy="10" r="7" fill="'+o.cols[j]+'" style="--dx:'+(j*6-12)+'px;animation-delay:'+(j*.08)+'s"/>'}
+ var tiles='';for(var x=0;x<16;x++)tiles+='<line x1="'+(x*50)+'" y1="0" x2="'+(x*50)+'" y2="330" stroke="#8fdcb5" stroke-width="3"/>';for(var y=0;y<7;y++)tiles+='<line x1="0" y1="'+(y*50)+'" x2="800" y2="'+(y*50)+'" stroke="#8fdcb5" stroke-width="3"/>';
+ var bott='';var bc=['#e53935','#ffb300','#43a047','#1e88e5'];for(var b=0;b<4;b++)bott+='<g class="bn d'+(b%3+1)+'"><rect x="'+(52+b*34)+'" y="102" width="24" height="52" rx="8" fill="'+bc[b]+'" class="o"/><rect x="'+(58+b*34)+'" y="90" width="12" height="14" fill="#fff" class="o"/></g>';
+ var dish=S.dish?'<g transform="translate(120 300)"><g class="bn"><ellipse cy="26" rx="50" ry="12" fill="#fff" class="o"/><text y="22" text-anchor="middle" font-size="58">'+S.dish+'</text></g></g>':'';
+ return head()+'<rect width="800" height="500" fill="#b9f0d3"/>'+tiles+sign('STASIUN MASAK',300,200,'#2fb37a')+
+ '<polygon points="250,70 560,70 620,170 190,170" fill="#b0bec5" class="o"/><rect x="40" y="150" width="190" height="12" rx="6" fill="#c97b3d" class="o"/>'+bott+
+ '<g transform="translate(630 215)"><g transform="scale(.62)"><path d="M-84,230 Q-84,84 0,76 Q84,84 84,230Z" fill="#fff" class="o"/><circle cx="-26" cy="130" r="8" fill="#ff6b4a" class="o"/><circle cx="-26" cy="170" r="8" fill="#ff6b4a" class="o"/><path d="M-30,76 L0,116 L30,76" fill="#ffd23f" class="o"/><g class="wave" style="transform-origin:90px 150px"><path d="M84,150 Q130,110 150,70" fill="none" stroke="#5b3a29" stroke-width="30" stroke-linecap="round"/><path d="M84,150 Q130,110 150,70" fill="none" stroke="#fff" stroke-width="22" stroke-linecap="round"/><circle cx="152" cy="62" r="18" fill="#ffd9b3" class="o"/></g>'+face(S.chefExpr,{hat:true})+'</g></g>'+
+ '<rect x="30" y="338" width="740" height="150" rx="18" fill="#ffb26b" class="o"/><rect x="30" y="338" width="740" height="26" rx="13" fill="#ffd199" class="o"/>'+
+ '<rect x="215" y="326" width="300" height="24" rx="8" fill="#455a64" class="o"/>'+
+ '<g transform="translate(365 410)"><g class="fl"><path d="M-70,0 Q-60,-26 -48,0Z" fill="#ff9800" class="o"/></g><g class="fl"><path d="M-14,0 Q0,-34 14,0Z" fill="#ffca28" class="o"/></g><g class="fl"><path d="M48,0 Q60,-26 70,0Z" fill="#ff9800" class="o"/></g></g>'+
+ '<g transform="translate(365 312)"><g class="'+(S.wokToss?'toss':'')+'"><path d="M-95,-6 Q0,100 95,-6Z" fill="#37474f" class="o"/><line x1="92" y1="-2" x2="170" y2="-30" stroke="#5b3a29" stroke-width="12" stroke-linecap="round"/><ellipse cx="0" cy="-4" rx="95" ry="12" fill="#546e7a" class="o"/><g transform="translate(0 -14)">'+nodes+'</g>'+fly+'</g><g transform="translate(0 -30)"><path class="steam" d="M-30,0 q-10,-14 0,-28" fill="none" class="o" stroke="#fff" stroke-width="6" stroke-linecap="round"/><path class="steam" style="animation-delay:.6s" d="M20,0 q-10,-14 0,-28" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/></g></g>'+dish+stamp(S.flags.pre1,90,250)+'</svg>'}
+function scene3(){
+ var c=CUST[Math.min(S.cur,2)];
+ var dish=S.served?'<g transform="translate(640 388)"><g class="bn"><ellipse cy="30" rx="56" ry="13" fill="#fff" class="o"/><text y="26" text-anchor="middle" font-size="64">'+ORD[Math.min(S.cur,2)].emoji+'</text></g></g>':'';
+ var showFace=S.phase==='open';
+ var bulbs='';for(var i=0;i<12;i++)bulbs+='<circle cx="'+(30+i*64)+'" cy="'+(24+(i%2)*10)+'" r="7" fill="'+['#ffd23f','#ff6b4a','#5ed0a0','#6cc5ff'][i%4]+'" class="o bn d'+(i%3+1)+'"/>';
+ var custg=showFace?'<g transform="translate(400 235)"><g class="cb"><path d="M-172,270 Q-168,118 0,112 Q168,118 172,270Z" fill="'+c.cloth+'" class="o"/><rect x="-26" y="86" width="52" height="40" fill="'+c.skin+'" class="o"/><g transform="scale(1.2)">'+face(S.custExpr,{skin:c.skin,hair:c.hair,hc:c.hc,dots:S.custExpr==='wait'})+'</g></g></g>':
+  '<g transform="translate(400 250)"><text text-anchor="middle" font-size="26" font-weight="900" fill="#5b3a29" opacity=".7">Menunggu pelanggan pertama...</text><text y="60" text-anchor="middle" font-size="54">🚪</text></g>';
+ return head()+'<rect width="800" height="500" fill="#ffd1dc"/><path d="M0,26 Q400,70 800,26" fill="none" class="o"/>'+bulbs+
+ '<rect x="50" y="90" width="190" height="170" rx="14" fill="#a5dcff" class="o"/><path d="M145,90 v170 M50,175 h190" class="o"/><circle cx="90" cy="130" r="20" fill="#ffe066"/>'+
+ '<rect x="560" y="80" width="200" height="150" rx="12" fill="#2e5d4b" class="o"/><text x="660" y="116" text-anchor="middle" font-weight="900" font-size="16" fill="#fff">MENU HARI INI</text><text x="660" y="150" text-anchor="middle" font-size="14" font-weight="700" fill="#e8ffd9">Nasi Goreng</text><text x="660" y="176" text-anchor="middle" font-size="14" font-weight="700" fill="#e8ffd9">Capcay</text><text x="660" y="202" text-anchor="middle" font-size="14" font-weight="700" fill="#e8ffd9">Kwetiau Goreng</text>'+custg+
+ '<rect x="0" y="398" width="800" height="110" fill="#d99a5b" class="o"/><rect x="0" y="398" width="800" height="24" fill="#f0b97d" class="o"/>'+
+ '<g transform="translate(130 392)"><path d="M-34,0 Q-34,-44 0,-44 Q34,-44 34,0Z" fill="#ffd23f" class="o"/><ellipse cy="2" rx="44" ry="10" fill="#ffb300" class="o"/></g>'+
+ '<g transform="translate(250 398) rotate(-4)"><rect width="70" height="44" rx="5" fill="#fffef6" class="o"/><path d="M10,14 h48 M10,28 h34" class="o" stroke-width="3"/></g>'+dish+'</svg>'}
+var SCENES=[scene0,scene1,scene2,scene3];
+
+/* ================= UTIL UI ================= */
+function openModal(h){var m=$('#modal');m.innerHTML=h;m.classList.add('on');m.scrollTop=0;return m}
+function closeModal(){var m=$('#modal');m.classList.remove('on');m.innerHTML=''}
+function burst(kind){
+ var set=kind==='good'?['⭐','✨','🌟','💛']:kind==='meh'?['❓','💧','😅']:['💧','❓','💢','😖'];var fx=$('#fx');
+ for(var i=0;i<16;i++){var d=document.createElement('div');d.className='fxi';d.textContent=set[i%set.length];
+  d.style.left=(15+Math.random()*70)+'%';d.style.top=(40+Math.random()*35)+'%';d.style.setProperty('--dx',(Math.random()*160-80)+'px');d.style.setProperty('--rot',(Math.random()*120-60)+'deg');d.style.animationDelay=(Math.random()*.3)+'s';fx.appendChild(d);
+  (function(n){setTimeout(function(){n.remove()},1800)})(d)}
+ if(kind==='bad'){var a=$('#app');a.classList.remove('shake');void a.offsetWidth;a.classList.add('shake');setTimeout(function(){a.classList.remove('shake')},500)}}
+var VERD={2:{c:'g',t:'Tepat banget! ⭐',fx:'good',sf:'good',em:'😄'},1:{c:'y',t:'Lumayan, tapi bisa lebih sigap',fx:'meh',sf:'meh',em:'🤔'},0:{c:'r',t:'Wah, kena jebakan!',fx:'bad',sf:'bad',em:'😵'}};
+function subst(t){return t.replace(/\{n\}/g,esc(fn()))}
+function reach(){var h=$('#hands');if(!h)return;h.classList.remove('reach');void h.getBoundingClientRect();h.classList.add('reach')}
+
+/* ================= LAYAR ================= */
+function show(h){var s=$('#screen');s.innerHTML=h;s.scrollTop=0}
+function screenLogin(){
+ closeModal();
+ show('<div class="wrap hero"><div class="mascot">'+avatar('chef','happy',170)+'</div><div class="title">Dapur Proaktif</div><p class="sub">Simulasi seru jadi Asisten Chef: siap lebih dulu, teliti saat pesanan datang, dan sigap melayani pelanggan.</p>'+
+ '<div class="card form"><div class="ribbon">🎟️ Daftar Hadir Dapur</div><div class="body"><label for="inName">Nama Lengkap</label><input id="inName" type="text" autocomplete="name" placeholder="Contoh: Budi Santoso" maxlength="40"><label for="inNik">NIK</label><input id="inNik" type="text" autocomplete="off" placeholder="Nomor Induk Karyawan" maxlength="20"><button class="btn" id="goBtn" disabled>Mulai Simulasi 🍳</button><p class="small center">Isi Nama Lengkap dan NIK dulu, ya. Tombol akan menyala.</p></div></div></div>');
+ var a=$('#inName'),b=$('#inNik'),g=$('#goBtn');
+ function chk(){g.disabled=!(a.value.trim().length>=3&&b.value.trim().length>=4)}
+ a.oninput=b.oninput=chk;a.value=P.name;b.value=P.nik;chk();
+ g.onclick=function(){P.name=a.value.trim();P.nik=b.value.trim();AU.init();SFX.pop();screenIntro()}}
+function screenIntro(){
+ show('<div class="wrap"><div class="speakrow"><div class="av">'+avatar('chef','happy',92)+'</div><div class="tail"><b>Chef Bima:</b> Halo, '+esc(fn())+'! Selamat bergabung di dapur kami. Mulai hari ini kamu jadi <b>Asisten Chef</b>. Kita akan bikin menu andalan seperti Nasi Goreng, Capcay, dan tumisan lain, dan aku butuh partner yang peka dan gesit.</div></div>'+
+ '<h2 style="margin-top:18px">📋 Jobdesk Asisten Chef</h2><div class="jobs">'+
+ '<div class="job"><div class="n">1</div><div class="ic">🧂</div><b>Siapkan sebelum buka</b><p>Menyiapkan, menakar, dan menata bahan baku (mise en place), bumbu, dan porsi menu sebelum jam buka.</p></div>'+
+ '<div class="job"><div class="n">2</div><div class="ic">📝</div><b>Baca pesanan dengan teliti</b><p>Membaca kertas pesanan dan panduan resep dengan teliti, lalu menyiapkan bahan yang tepat sebelum Chef meminta berulang kali.</p></div>'+
+ '<div class="job"><div class="n">3</div><div class="ic">🙋</div><b>Layani pelanggan</b><p>Melayani dan berkomunikasi dengan pelanggan secara sigap, jelas, dan selaras dengan alur dapur.</p></div></div>'+
+ '<div class="how">🎮 <b>Cara main:</b> kamu melihat dapur dari mata sendiri. Jalan antar titik pakai tombol panah (atau chip lokasi), lalu ketuk tombol yang bergoyang di layar untuk beraksi. Ada dua waktu: <b>Sebelum Buka</b> dan <b>Setelah Buka</b>. Pilih dengan cermat, soalnya tidak semua pilihan yang terdengar wajar itu tepat.</div>'+
+ '<div class="center"><button class="btn" id="enter">Masuk Dapur 🚪</button></div></div>');
+ $('#enter').onclick=function(){SFX.click();resetState();screenPlay()}}
+function screenPlay(){
+ show('<div class="wrap"><div class="hud"><span class="badge ph" id="hPh"></span><span class="badge" id="hPg"></span><span class="badge" id="hPt"></span></div><div class="obj"><span class="dot"></span><span id="obj"></span></div>'+
+ '<div class="stage" id="stage"><div class="scene" id="scene"></div><div class="spotname" id="spn"></div><div class="bubble" id="bub" style="display:none"></div><button class="hot" id="hot" style="display:none"></button>'+
+ '<svg class="hands" id="hands" viewBox="0 0 400 100" aria-hidden="true"><g><rect x="40" y="46" width="84" height="70" rx="28" fill="#ff6b4a" class="o"/><circle cx="82" cy="44" r="30" fill="#ffd9b3" class="o"/><path d="M66,30 q4,-10 10,0 M82,26 q4,-10 10,0" class="o" fill="none" stroke-width="3"/></g><g><rect x="276" y="46" width="84" height="70" rx="28" fill="#ff6b4a" class="o"/><circle cx="318" cy="44" r="30" fill="#ffd9b3" class="o"/><path d="M302,30 q4,-10 10,0 M318,26 q4,-10 10,0" class="o" fill="none" stroke-width="3"/></g></svg></div>'+
+ '<div id="dlg"></div><div class="nav"><button class="btn sm" id="prev"></button><div class="chips" id="chips"></div><button class="btn sm" id="next"></button></div></div>');
+ $('#hot').onclick=onHot;$('#prev').onclick=function(){walkTo(S.spot-1)};$('#next').onclick=function(){walkTo(S.spot+1)};
+ drawScene()}
+function points(){var p=0;S.pre.forEach(function(x){p+=x});S.cs.forEach(function(x){p+=x});S.mat.forEach(function(x){p+=Math.round(x*2)});return p}
+function drawScene(){var sc=$('#scene');if(!sc)return;sc.innerHTML=SCENES[S.spot]();updateUI()}
+function updateUI(){
+ if(!$('#hud')&&!$('#hPh'))return;
+ var st=S.steps[S.idx];
+ $('#hPh').textContent=S.phase==='pre'?'🌅 Waktu 1: Sebelum Buka':'🔥 Waktu 2: Setelah Buka';$('#hPh').classList.toggle('open',S.phase!=='pre');
+ $('#hPg').textContent='Misi '+Math.min(S.idx+1,S.steps.length)+'/'+S.steps.length;$('#hPt').textContent='⭐ '+points();
+ $('#spn').textContent=SPOTS[S.spot].ic+' '+SPOTS[S.spot].n;
+ var ob=$('#obj');
+ if(!st)ob.textContent='Shift selesai!';
+ else if(S.busy)ob.textContent='Lagi beraksi, '+fn()+'. Pilih dengan cermat ya.';
+ else if(st.spot===S.spot)ob.textContent='Kamu sudah di '+SPOTS[st.spot].s+'. Ketuk tombol yang bergoyang di layar.';
+ else ob.textContent='Langkah berikut: jalan ke '+SPOTS[st.spot].n+'.';
+ var h=$('#hot');
+ if(st&&!S.busy&&!S.walking&&st.spot===S.spot){var k=st.t==='pre'?'pre'+st.i:st.t;h.textContent={pre0:'🧺 Periksa rak & meja',pre1:'🥣 Cek bumbu',pre2:'📖 Buka panduan',paper:'📝 Zoom kertas pesanan',mix:'🥘 Pilih bahan',serve:'🙋 Sapa pelanggan'}[k];h.style.display='block'}else h.style.display='none';
+ var chips='';for(var i=0;i<4;i++)chips+='<button class="chip'+(i===S.spot?' here':'')+(st&&st.spot===i&&i!==S.spot?' glow':'')+'" data-i="'+i+'" title="'+SPOTS[i].n+'">'+SPOTS[i].ic+'<span class="t"> '+SPOTS[i].s+'</span></button>';
+ $('#chips').innerHTML=chips;var cs=$('#chips').querySelectorAll('.chip');for(var j=0;j<cs.length;j++)cs[j].onclick=function(){walkTo(+this.getAttribute('data-i'))};
+ var pv=$('#prev'),nx=$('#next');pv.textContent=S.spot>0?'◀ '+SPOTS[S.spot-1].s:'◀ —';nx.textContent=S.spot<3?SPOTS[S.spot+1].s+' ▶':'— ▶';
+ pv.disabled=S.spot===0;nx.disabled=S.spot===3;pv.classList.remove('glow');nx.classList.remove('glow');
+ if(st&&st.spot!==S.spot){(st.spot<S.spot?pv:nx).classList.add('glow')}}
+function say(who,t){var b=$('#bub');if(!b)return;b.innerHTML='<b>'+esc(who)+':</b> '+t;b.style.display='block'}
+function hideBub(){var b=$('#bub');if(b)b.style.display='none'}
+function walkTo(n){
+ if(S.walking||S.busy||n===S.spot||n<0||n>3)return;
+ var dir=n>S.spot?1:-1,stg=$('#stage'),sc=$('#scene');S.walking=true;stg.style.setProperty('--dir',dir);
+ sc.classList.add('walking');stg.classList.add('walkmode');
+ var cnt=2+Math.abs(n-S.spot);for(var i=0;i<cnt;i++)(function(i){setTimeout(SFX.step,i*190)})(i);
+ hideBub();updateUI();
+ setTimeout(function(){
+  if(S.spot===2)S.chefExpr='normal';
+  S.spot=n;sc.innerHTML=SCENES[S.spot]();var st=S.steps[S.idx];
+  if(S.spot===3&&S.phase==='open'&&st&&st.t==='serve'){S.custExpr='wait'}
+ },370);
+ setTimeout(function(){sc.classList.remove('walking');stg.classList.remove('walkmode');S.walking=false;
+  if(S.spot===3&&S.phase==='open'){sc.innerHTML=SCENES[3]()}
+  updateUI()},760)}
+document.addEventListener('keydown',function(e){if(!$('#stage'))return;if(e.key==='ArrowLeft')walkTo(S.spot-1);if(e.key==='ArrowRight')walkTo(S.spot+1)});
+
+/* ================= LANGKAH ================= */
+function onHot(){
+ if(S.busy||S.walking)return;var st=S.steps[S.idx];if(!st||st.spot!==S.spot)return;
+ SFX.click();({pre:doPre,paper:doPaper,mix:doMix,serve:doServe})[st.t](st)}
+function advance(){
+ S.busy=false;S.idx++;
+ if(S.idx===3&&!S.opened){S.opened=true;S.phase='open';S.cur=0;drawScene();
+  setTimeout(function(){SFX.bell();openModal('<div class="pop card"><div class="ribbon r2">🔔 Waktu 2: Setelah Buka</div><div class="body center"><div class="big">🔔🚪✨</div><h3>Kring! Dapur resmi buka</h3><p>Pelanggan mulai berdatangan, '+esc(fn())+'. Pesanan pertama sudah tergantung di rel Meja Pesanan. Sekarang bacaan yang teliti dan gerak yang sigap jadi penentu.</p><button class="btn green" id="okb">Siap, Chef! 💪</button></div></div>');
+  $('#okb').onclick=function(){SFX.click();closeModal();drawScene()}},250);return}
+ if(S.idx>=S.steps.length){drawScene();setTimeout(function(){SFX.fanfare();burst('good');openModal('<div class="pop card"><div class="ribbon g">🎉 Shift Selesai!</div><div class="body center"><div class="big">🏅</div><h3>Kerja bagus, '+esc(fn())+'!</h3><p>Semua pesanan sudah terlayani. Yuk lihat rapor shift-mu.</p><button class="btn green" id="rc">Lihat Rekap 📊</button></div></div>');$('#rc').onclick=function(){SFX.click();closeModal();screenRecap()}},350);return}
+ drawScene()}
+function verdictView(s,fb,extra){return '<div class="ribbon '+VERD[s].c+'">'+VERD[s].t+'</div><div class="body center"><div class="big">'+VERD[s].em+'</div><p>'+fb+'</p>'+(extra||'')+'<button class="btn green" id="nx">Lanjut →</button></div>'}
+function doPre(st){
+ var d=PRE[st.i];S.busy=true;updateUI();SFX.pop();
+ var opts=shuffle(d.opts),L=['A','B','C','D'];
+ openModal('<div class="pop card"><div class="ribbon r1">🌅 Sebelum Buka · '+d.title+'</div><div class="body"><div class="situ"><span class="em">'+d.ic+'</span><div>'+subst(d.sit)+'<br><b>Kamu pilih apa?</b></div></div><div class="opts">'+opts.map(function(o,i){return '<button class="opt" data-i="'+i+'"><span class="l">'+L[i]+'</span><span>'+o.t+'</span></button>'}).join('')+'</div></div></div>');
+ var bs=$('#modal').querySelectorAll('.opt');
+ for(var i=0;i<bs.length;i++)bs[i].onclick=function(){
+  var o=opts[+this.getAttribute('data-i')],s=o.s;SFX.click();reach();
+  S.pre.push(s);if(s===2)S.flags['pre'+st.i]=true;
+  S.chefExpr=s===2?'happy':s===1?'confused':'upset';
+  SFX[VERD[s].sf]();burst(VERD[s].fx);
+  $('#modal .card').innerHTML=verdictView(s,o.fb);
+  $('#nx').onclick=function(){SFX.click();closeModal();advance()}}}
+function doPaper(st){
+ var o=ORD[st.o];S.busy=true;updateUI();SFX.paper();
+ openModal('<div class="pop"><div class="card"><div class="ribbon b">🔍 Zoom Kertas Pesanan</div><div class="body"><div class="speakrow"><div class="av" style="width:60px">'+avatar('chef','normal',60)+'</div><div class="tail" style="font-size:14px"><b>Chef Bima:</b> '+esc(fn())+', baca pelan-pelan ya. Detailnya sering ada di catatan.</div></div>'+
+ '<div class="zoomwrap"><div class="paper"><div class="tape"></div><h3>PESANAN No. '+('0'+o.no)+'</h3><div class="ln hand">'+o.meja+' · Makan di tempat</div><div class="ln">'+o.emoji+' '+o.dish+' x'+o.qty+'</div><div class="ln hand">Tambahan: '+o.extra+'</div><div class="note" id="note">⚠ CATATAN KHUSUS: '+o.note+'</div></div></div>'+
+ '<p class="hint">🖍️ Ketuk catatan khusus untuk menyorotnya dengan stabilo.</p><div class="center"><button class="btn" id="go" disabled>Sudah kubaca →</button></div></div></div></div>');
+ $('#note').onclick=function(){if(this.classList.contains('marked'))return;this.classList.add('marked');SFX.pick();SFX.paper();$('#go').disabled=false;reach()};
+ $('#go').onclick=function(){SFX.click();closeModal();S.flags['paper'+st.o]=true;advance()}}
+function doMix(st){
+ var o=ORD[st.o];S.busy=true;updateUI();SFX.pop();
+ var items=shuffle(o.ing),sel={};
+ openModal('<div class="pop card wide"><div class="ribbon r2">🥘 Siapkan Bahan · Pesanan No. '+('0'+o.no)+'</div><div class="body"><div class="chefline">'+avatar('chef','normal',56)+'<div class="tail" style="flex:1"><b>Chef Bima:</b> '+esc(fn())+', '+o.chef+'</div></div>'+
+ '<div class="mixgrid"><div class="recipe"><h4>📖 Panduan Resep: '+o.dish+'</h4><ol>'+o.guide.map(function(g){return '<li>'+g+'</li>'}).join('')+'</ol><div class="cat">📌 Catatan pesanan: '+o.note+'</div></div>'+
+ '<div><p class="hint" style="text-align:left">Pilih bahan yang perlu disiapkan. Rak ini campur, tidak semuanya cocok.</p><div class="ing" id="ing">'+items.map(function(it,i){return '<button class="ingc" data-i="'+i+'"><span class="e">'+it.e+'</span>'+it.n+'</button>'}).join('')+'</div></div></div>'+
+ '<div class="foot"><span id="cnt" class="badge">Dipilih: 0</span><button class="btn" id="send" disabled>Kirim ke Chef 🍳</button></div></div></div>');
+ var bs=$('#ing').querySelectorAll('.ingc');
+ for(var i=0;i<bs.length;i++)bs[i].onclick=function(){var k=this.getAttribute('data-i');if(sel[k]){delete sel[k];this.classList.remove('sel');SFX.unpick()}else{sel[k]=1;this.classList.add('sel');SFX.pick()}reach();var n=Object.keys(sel).length;$('#cnt').textContent='Dipilih: '+n;$('#send').disabled=n===0};
+ $('#send').onclick=function(){
+  SFX.click();
+  var T=0,c=0,w=0,okL=[],noL=[],miss=[];
+  items.forEach(function(it,i){if(it.ok)T++;if(sel[i]){if(it.ok){c++;okL.push(it)}else{w++;noL.push(it)}}else if(it.ok)miss.push(it)});
+  var ratio=Math.max(0,c-w)/T;S.mat.push(ratio);
+  var lvl=ratio>=.99?2:ratio>=.5?1:0;
+  S.dish=o.emoji;S.wokToss=true;S.chefExpr=lvl===2?'happy':lvl===1?'confused':'upset';
+  if(lvl===2)S.flags['mix'+st.o]=true;
+  SFX.sizzle();setTimeout(function(){SFX[VERD[lvl].sf]()},500);burst(VERD[lvl].fx);
+  var title=lvl===2?'Bahan pas semua! ⭐':lvl===1?'Hampir pas, tapi masih ada yang meleset':'Waduh, banyak bahan yang meleset';
+  var quote=lvl===2?'Mantap, '+esc(fn())+'! Semua pas, aku tinggal masak. Rapi banget.':lvl===1?'Hmm '+esc(fn())+', ada yang kurang atau nyasar. Lain kali cek lagi catatan dan resepnya sebelum kirim.':esc(fn())+', ini bahannya banyak yang tidak sesuai catatan. Baca kertas dan resep dulu, baru ambil bahan, ya.';
+  var h='<div class="ribbon '+VERD[lvl].c+'">'+title+'</div><div class="body"><div class="chefline">'+avatar('chef',S.chefExpr,60)+'<div class="tail" style="flex:1"><b>Chef Bima:</b> '+quote+'</div></div><div class="res">';
+  if(okL.length)h+='<div class="rg ok"><b>✔ Tepat dipilih ('+okL.length+')</b>'+okL.map(function(x){return x.e+' '+x.n}).join(' · ')+'</div>';
+  if(noL.length)h+='<div class="rg no"><b>✖ Tidak nyambung ('+noL.length+')</b>'+noL.map(function(x){return x.e+' '+x.n+': '+x.why}).join('<br>')+'</div>';
+  if(miss.length)h+='<div class="rg miss"><b>⚠ Terlewat ('+miss.length+')</b>'+miss.map(function(x){return x.e+' '+x.n}).join(' · ')+'</div>';
+  h+='</div><div class="center"><button class="btn green" id="nx">Lanjut ke konter →</button></div></div>';
+  $('#modal .card').innerHTML=h;drawScene();
+  setTimeout(function(){S.wokToss=false},2000);
+  $('#nx').onclick=function(){SFX.click();closeModal();advance()}}}
+function doServe(st){
+ var o=st.o,q=CQ[o],c=CUST[o];S.busy=true;S.custExpr='wait';S.served=false;SFX.pop();drawScene();hideBub();
+ setTimeout(function(){say(c.n,subst(q.say))},150);
+ var opts=shuffle(q.opts),L=['A','B','C','D'];
+ $('#dlg').innerHTML='<div class="card"><div class="ribbon b">🙋 Layani '+c.n+' · Kamu jawab apa?</div><div class="body"><div class="opts">'+opts.map(function(x,i){return '<button class="opt" data-i="'+i+'"><span class="l">'+L[i]+'</span><span>'+x.t+'</span></button>'}).join('')+'</div></div></div>';
+ var bs=$('#dlg').querySelectorAll('.opt');
+ for(var i=0;i<bs.length;i++)bs[i].onclick=function(){
+  var x=opts[+this.getAttribute('data-i')],s=x.s;SFX.click();reach();
+  S.cs.push(s);S.custExpr=s===2?'happy':s===1?'confused':'upset';S.chefExpr=s===2?'happy':'normal';S.served=s===2;
+  drawScene();say(c.n,x.rep);SFX[VERD[s].sf]();burst(VERD[s].fx);
+  if(s===2)setTimeout(function(){SFX.bell()},500);
+  var chefNote=s===2?'Chef melihatmu sigap, jadi langsung plating dan piring meluncur ke konter. Ritme kerja kalian solid. 🍽️':'Chef menunggu kepastian darimu sebelum plating, jadi alur dapur ikut tersendat.';
+  $('#dlg').innerHTML='<div class="card"><div class="ribbon '+VERD[s].c+'">'+VERD[s].t+'</div><div class="body"><p>'+x.fb+'</p><p><b>👨‍🍳 Alur dapur:</b> '+chefNote+'</p><div class="center"><button class="btn green" id="nx">'+(o<2?'Pesanan berikutnya →':'Selesaikan shift 🎉')+'</button></div></div></div>';
+  $('#nx').onclick=function(){SFX.click();$('#dlg').innerHTML='';hideBub();S.custExpr='wait';S.chefExpr='normal';S.served=false;S.dish=null;if(o<2)S.cur=o+1;advance()}}}
+
+/* ================= REKAP ================= */
+function pctOf(a,max){return Math.round(a/max*100)}
+function stars(p){var n=p>=80?3:p>=50?2:1;var s='';for(var i=0;i<3;i++)s+=i<n?'⭐':'☆';return s}
+function recapStat(label,p,note){return '<div class="stat"><div class="row"><span>'+label+'</span><span>'+stars(p)+' '+p+'%</span></div><div class="bar"><i data-w="'+p+'"></i></div><p class="small">'+note+'</p></div>'}
+function screenRecap(){
+ var pre=S.pre.reduce(function(a,b){return a+b},0),cs=S.cs.reduce(function(a,b){return a+b},0),mat=S.mat.reduce(function(a,b){return a+b},0);
+ var pP=pctOf(pre,6),pM=Math.round(mat/3*100),pC=pctOf(cs,6),tot=Math.round((pP+pM+pC)/3);
+ var title=tot>=80?'Asisten Chef Andalan 🏆':tot>=55?'Asisten Chef Sigap 👍':'Asisten Chef Calon Handal 🌱';
+ var nP=pP>=80?'Kamu menyiapkan sebelum diminta. Itu kebiasaan yang membuat dapur terasa ringan.':pP>=50?'Sudah ada inisiatif, tinggal lebih sering melangkah sebelum disuruh.':'Masih sering menunggu aba-aba. Coba mulai dari satu hal kecil yang bisa kamu siapkan lebih dulu.';
+ var nM=pM>=80?'Kertas pesanan dan resep kamu baca dengan teliti. Bahan yang disiapkan pas dengan catatan.':pM>=50?'Cukup teliti, tapi masih ada bahan yang terlewat atau nyasar. Catatan khusus layak dibaca dua kali.':'Bahan banyak yang meleset dari catatan. Biasakan membaca kertas dan resep sebelum mengambil bahan.';
+ var nC=pC>=80?'Jawabanmu jelas, konkret, dan selaras dengan alur Chef. Pelanggan pulang tersenyum.':pC>=50?'Pelayananmu sopan. Tambahkan kepastian (waktu, catatan) supaya pelanggan makin yakin.':'Jawaban masih sering menggantung. Pelanggan butuh kepastian, bukan sekadar basa-basi.';
+ var tag=function(p){return p>=80?'kuat':p>=50?'cukup':'perlu diasah'};
+ show('<div class="wrap"><div class="center"><div style="width:130px;margin:0 auto">'+avatar('chef',tot>=55?'happy':'normal',130)+'</div><div class="title" style="font-size:clamp(26px,6vw,42px)">Rapor Shift Dapur</div></div>'+
+ '<div class="card"><div class="ribbon">🧾 Evaluasi Akhir · '+title+'</div><div class="body"><div class="idrow"><span>👤 Nama: '+esc(P.name)+'</span><span>🪪 NIK: '+esc(P.nik)+'</span><span>⭐ Total: '+tot+'%</span></div>'+
+ recapStat('🌅 Kesiapan & Langkah Proaktif',pP,nP)+recapStat('📝 Ketelitian Bahan & Kertas Pesanan',pM,nM)+recapStat('🙋 Pelayanan Pelanggan',pC,nC)+'</div></div>'+
+ '<h2 style="margin-top:20px">🧠 Kaitan dengan Materi</h2><div class="fw">'+
+ '<div class="card"><div class="ribbon y">🎯 Sikap Proaktif (Covey)</div><div class="body">Orang proaktif mengambil inisiatif sebelum diminta dan fokus pada <b>Circle of Influence</b>, yaitu hal-hal yang bisa dia kerjakan sendiri. Di dapur tadi, menghitung stok, menyiapkan bumbu, dan membaca resep lebih awal adalah contohnya. Area ini kamu: <b>'+tag(pP)+'</b>.</div></div>'+
+ '<div class="card"><div class="ribbon g">🤝 Inisiatif & Keteladanan</div><div class="body">Inisiatif yang lahir dari dalam diri membangun ritme kerja yang solid bersama Chef dan pelayanan yang meyakinkan. Saat kamu sigap dan jelas, rekan dan pelanggan jadi percaya, dan itu menular ke tim. Pelayananmu: <b>'+tag(pC)+'</b>.</div></div></div>'+
+ '<div class="card"><div class="ribbon b">🔄 OODA Loop (John Boyd)</div><div class="body">Siklus berpikir dan bertindak cepat yang tadi kamu jalani di dapur:<div class="ooda">'+
+ '<div><b>👀 Observe</b><br>Melihat detail resep, kertas pesanan, dan ekspresi situasi.<br><i>Ketelitianmu: '+tag(pM)+'</i></div>'+
+ '<div><b>🧭 Orient</b><br>Memetakan kecocokan bahan dengan kebutuhan Chef dan pelanggan.<br><i>Pemetaan bahan: '+pM+'%</i></div>'+
+ '<div><b>🎯 Decide</b><br>Menentukan bahan dan respons yang tepat.<br><i>Keputusan layanan: '+pC+'%</i></div>'+
+ '<div><b>⚡ Act</b><br>Mengeksekusi dengan sigap, sebelum diminta.<br><i>Langkah proaktif: '+pP+'%</i></div></div></div></div>'+
+ '<div class="closing"><h3>💌 Pesan Penutup</h3><p>'+esc(fn())+', dapur yang hebat tidak lahir dari satu Chef yang pintar saja, tapi dari tim yang saling peka. Setiap kali kamu membaca satu catatan lebih teliti, menyiapkan satu bahan lebih awal, atau menjawab pelanggan dengan jelas, kamu sedang membangun kepercayaan.</p><p>Mulailah dari hal kecil yang ada dalam jangkauanmu. Tidak perlu menunggu disuruh: lihat, pahami, putuskan, lalu lakukan. Terima kasih sudah menjadi bagian dari dapur ini. Besok, buat Chef dan pelanggan tersenyum lagi. 🍳💛</p></div>'+
+ '<div class="center" style="margin:16px 0"><button class="btn" id="again">Ulangi Simulasi 🔁</button></div></div>');
+ SFX.fanfare();burst('good');
+ setTimeout(function(){var bs=document.querySelectorAll('.bar i');for(var i=0;i<bs.length;i++)bs[i].style.width=bs[i].getAttribute('data-w')+'%'},150);
+ $('#again').onclick=function(){SFX.click();resetState();screenPlay()}}
+
+screenLogin();
+})();
+</script>
+</body>
+</html>
